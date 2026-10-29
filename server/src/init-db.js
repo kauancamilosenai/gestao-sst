@@ -2,9 +2,15 @@ import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { pool } from './db.js';
 
-try {
+export async function initializeSchema() {
   const schemaUrl = new URL('../db/schema.sql', import.meta.url);
   const sql = await readFile(fileURLToPath(schemaUrl), 'utf8');
   await pool.query(sql);
   console.log('Estrutura PostgreSQL criada/atualizada.');
-} finally { await pool.end(); }
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  try { await initializeSchema(); }
+  finally { await pool.end(); }
+}
+
