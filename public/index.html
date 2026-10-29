@@ -8,11 +8,26 @@
     <title>Gestão SST</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./identity.css" />
-    <script src="./app.js" defer></script>
+    <link rel="stylesheet" href="./auth.css" />
+    <script src="./boot.js" defer></script>
   </head>
   <body>
-    <div class="demo-banner"><span class="demo-dot"></span> Banco conectado <span>Dados carregados do PostgreSQL</span><button id="reload-data" data-action="reload-data" type="button">Atualizar dados</button></div>
-    <div class="app-shell">
+    <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+      <form class="auth-card" id="login-form">
+        <div class="auth-brand"><span class="brand-mark">S</span></div>
+        <p class="auth-eyebrow">GESTÃO DE SEGURANÇA DO TRABALHO</p>
+        <h1 id="auth-title">Acesse sua equipe</h1>
+        <p class="auth-description">Entre com seu e-mail e senha para acessar os registros da empresa.</p>
+        <label for="login-email">E-mail</label><input id="login-email" name="email" type="email" autocomplete="username" required />
+        <label for="login-password">Senha</label><input id="login-password" name="password" type="password" autocomplete="current-password" required />
+        <p class="auth-error" id="login-error" role="alert"></p>
+        <button class="auth-submit" type="submit">Entrar</button>
+        <small class="auth-help">O acesso é individual. Peça ao responsável pelo sistema para criar sua conta.</small>
+      </form>
+      <div id="auth-dialog-root"></div>
+    </section>
+    <div class="demo-banner" id="demo-banner" hidden><span class="demo-dot"></span> Banco conectado <span>Dados carregados do PostgreSQL</span><button id="reload-data" data-action="reload-data" type="button">Atualizar dados</button></div>
+    <div class="app-shell" id="app-shell" hidden>
       <aside class="sidebar" id="sidebar">
         <a class="brand" href="#home" aria-label="Gestão SST - início"><span class="brand-mark">S</span><span><strong>Gestão SST</strong><small>documentos e equipe</small></span></a>
         <div class="nav-caption">ESPAÇO DE TRABALHO</div>
@@ -22,7 +37,7 @@
           <button class="nav-link" data-page="employees"><span class="nav-symbol">♙</span><span>Colaboradores</span><b id="nav-employee-count">0</b></button>
         </nav>
         <div class="sidebar-bottom">
-          <div class="privacy-card"><span class="privacy-icon">◈</span><div><strong>Dados no PostgreSQL</strong><small>Login ainda não configurado</small></div></div>
+          <div class="privacy-card"><span class="privacy-icon">◈</span><div><strong>Sessão protegida</strong><small>Acesso autenticado</small></div></div>
           <div class="signed-user"><span class="avatar avatar-small">EQ</span><span><strong>Equipe de assessoria</strong><small>ambiente local</small></span><span class="more-dot">•••</span></div>
         </div>
       </aside>
@@ -34,6 +49,8 @@
           <div class="top-actions">
             <div class="connection-state"><i></i><span>Drive não conectado</span></div>
             <button class="button button-light button-drive" data-action="drive-info"><span>↗</span> Conectar Drive</button>
+            <button class="button button-light account-button" type="button" data-auth-action="add-user">Adicionar usuário</button>
+            <button class="button button-light account-button" type="button" data-auth-action="logout">Sair</button>
             <button class="icon-button" title="Configurações de e-mail" data-action="open-settings">⚙</button>
           </div>
         </header>
@@ -44,3 +61,4 @@
     <div id="toast-root" aria-live="polite"></div>
   </body>
 </html>
+
