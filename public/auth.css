@@ -18,5 +18,5 @@
 .auth-dialog .auth-eyebrow{margin-top:4px}.auth-dialog h2{font-size:20px}.auth-dialog .auth-description{margin-bottom:15px}
 .auth-dialog-close{position:absolute;top:13px;right:15px;width:30px;height:30px;border:0;border-radius:8px;background:#f1f4f1;color:#6b776d;font-size:20px}
 @media(max-width:720px){.auth-card,.auth-dialog{padding:26px 21px}.account-button{font-size:9px;padding:8px 9px}}
-@media(max-width:520px){.button-drive,.connection-state{display:none}.account-button[data-auth-action="add-user"]{width:34px;padding:7px;font-size:0}.account-button[data-auth-action="add-user"]::before{content:"+";font-size:17px}}
+@media(max-width:520px){.button-drive,.connection-state{display:none}.account-button[data-auth-action="add-user"],.account-button[data-auth-action="change-password"]{width:34px;padding:7px;font-size:0}.account-button[data-auth-action="add-user"]::before{content:"+";font-size:17px}.account-button[data-auth-action="change-password"]::before{content:"↻";font-size:16px}}
 
