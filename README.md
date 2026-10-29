@@ -29,35 +29,37 @@ npm ci
 npm run dev
 ```
 
-Na primeira inicialização a API cria o esquema e a primeira conta configurada em `.env`. A interface abre em `http://localhost:3000`. Verifique o banco em `http://localhost:3000/api/health`.
+Na primeira inicialização a API cria o esquema e a primeira conta configurada em `.env`. A interface autenticada abre em `http://localhost:3000`. O protótipo HTML original está preservado em `prototype/`.
 
 Se você já tiver PostgreSQL, configure `DATABASE_URL` em `server/.env` e pule o Docker. Use `PGSSL=true` para uma conexão TLS com certificado válido e, quando necessário, informe o certificado raiz por `PGSSL_CA`.
 
 ## Publicar para a equipe
 
-A configuração proposta usa Supabase para PostgreSQL em São Paulo e Fly.io para servir site e API na região de São Paulo (`gru`). O banco começa vazio: este deploy não importa registros do banco local.
+A configuração para o site já hospedado no Vercel usa Vercel Functions para servir a interface e a API, e Supabase para PostgreSQL em São Paulo. O banco começa vazio; registros locais não são enviados por este procedimento.
 
 ### 1. Criar o PostgreSQL no Supabase
 
 1. Crie um projeto e escolha **South America (São Paulo)**.
 2. Defina uma senha forte para o banco e guarde-a em um gerenciador de senhas.
-3. Abra **Connect** e copie a conexão **Direct connection**. O Fly.io é uma VM de longa duração, então esse é o tipo indicado nas opções de conexão do Supabase. Se a rede ou DNS não aceitar IPv6, use **Session pooler**.
+3. Abra **Connect** e copie a conexão **Transaction pooler**, indicada para funções serverless como a API no Vercel.
 4. Guarde a URL com segurança. Ela contém a senha do banco; nunca a coloque no GitHub.
 
-### 2. Preparar o Fly.io
+### 2. Configurar o projeto Vercel
 
-Instale o `flyctl`, entre na sua conta e, nesta pasta, troque `app` em `fly.toml` por um identificador único que você queira usar. Depois:
+O repositório inclui o ponto de entrada Express do Vercel e publica as funções na região `gru1` (São Paulo). No projeto conectado ao GitHub:
 
-```powershell
-fly auth login
-fly apps create NOME-UNICO-DO-APP
-fly secrets set DATABASE_URL="URL-DO-SUPABASE" ADMIN_NAME="Seu nome" ADMIN_EMAIL="seu-email@empresa.com.br" ADMIN_PASSWORD="senha-forte-com-12-ou-mais-caracteres"
-fly deploy
-```
+1. Confirme que **Root Directory** está na raiz do repositório (`.`).
+2. Em **Settings → Environment Variables**, adicione para o ambiente **Production**:
+   - `DATABASE_URL`: URL do **Transaction pooler** copiada do Supabase, com a senha preenchida e caracteres especiais codificados.
+   - `PGSSL`: `true`.
+   - `ADMIN_NAME`: nome do primeiro usuário.
+   - `ADMIN_EMAIL`: e-mail usado no primeiro login.
+   - `ADMIN_PASSWORD`: senha forte com pelo menos 12 caracteres.
+3. Salve e publique novamente a implantação de produção da branch `main`.
 
-Use a mesma grafia para `NOME-UNICO-DO-APP` em `fly.toml` e no comando `fly apps create`. Os valores de `fly secrets set` ficam no cofre de segredos do Fly; evite compartilhar a tela ou guardar senhas no histórico do terminal. `PGSSL=true` e `NODE_ENV=production` já estão configurados em `fly.toml`.
+Não coloque esses valores no GitHub nem os envie por mensagem. O Vercel mantém os segredos nas configurações do projeto.
 
-No primeiro início, o servidor cria as tabelas e cria a conta inicial com os segredos `ADMIN_*`. A aplicação fica em `https://NOME-UNICO-DO-APP.fly.dev`. Entre com o e-mail e a senha inicial e use **Adicionar usuário** para criar os acessos da equipe.
+Na primeira chamada da API após o deploy, o servidor cria as tabelas e a conta inicial a partir das variáveis `ADMIN_*`. Entre no domínio do seu projeto Vercel com esse e-mail e senha; depois use **Adicionar usuário** para cadastrar a equipe.
 
 > O aplicativo não manda convites nem oferece recuperação de senha por e-mail. Entregue a senha inicial por canal privado; cada pessoa pode trocá-la depois do login. Todos os usuários cadastrados podem criar outras contas e têm permissões iguais.
 
