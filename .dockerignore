@@ -1,0 +1,13 @@
+.git
+.github
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+**/node_modules
+**/*.dump
+**/*backup*
+outputs
+work
+
