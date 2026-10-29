@@ -6,7 +6,12 @@ if (!process.env.DATABASE_URL) throw new Error('Configure DATABASE_URL no arquiv
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : false
+  ssl: process.env.PGSSL === 'true'
+    ? { rejectUnauthorized: true, ...(process.env.PGSSL_CA ? { ca: process.env.PGSSL_CA.replace(/\\n/g, '\n') } : {}) }
+    : false,
+  max: Number(process.env.PG_POOL_MAX || 5),
+  connectionTimeoutMillis: 10000,
+  idleTimeoutMillis: 30000,
 });
 
 export async function withTransaction(fn) {
@@ -21,3 +26,4 @@ export async function withTransaction(fn) {
     throw error;
   } finally { client.release(); }
 }
+
