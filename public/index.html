@@ -24,8 +24,8 @@
         <button class="auth-submit" type="submit">Entrar</button>
         <small class="auth-help">O acesso é individual. Peça ao responsável pelo sistema para criar sua conta.</small>
       </form>
-      <div id="auth-dialog-root"></div>
     </section>
+    <div id="auth-dialog-root"></div>
     <div class="demo-banner" id="demo-banner" hidden><span class="demo-dot"></span> Banco conectado <span>Dados carregados do PostgreSQL</span><button id="reload-data" data-action="reload-data" type="button">Atualizar dados</button></div>
     <div class="app-shell" id="app-shell" hidden>
       <aside class="sidebar" id="sidebar">
@@ -49,7 +49,7 @@
           <div class="top-actions">
             <div class="connection-state"><i></i><span>Drive não conectado</span></div>
             <button class="button button-light button-drive" data-action="drive-info"><span>↗</span> Conectar Drive</button>
-            <button class="button button-light account-button" type="button" data-auth-action="add-user">Adicionar usuário</button>
+            <button class="button button-light account-button" type="button" data-auth-action="add-user" aria-label="Adicionar usuário" title="Adicionar usuário">Adicionar usuário</button>
             <button class="button button-light account-button" type="button" data-auth-action="logout">Sair</button>
             <button class="icon-button" title="Configurações de e-mail" data-action="open-settings">⚙</button>
           </div>
