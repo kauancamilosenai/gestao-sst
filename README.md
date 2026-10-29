@@ -10,6 +10,7 @@ Sistema de gestão de empreiteiras, colaboradores, histórico de vínculos e doc
 - Indicadores do painel e contagem mensal de treinamentos.
 - Registro básico de auditoria das operações feitas pela API.
 - Login individual com sessão em cookie HttpOnly, SameSite Strict e expiração após 8 horas.
+- Troca da própria senha; a alteração encerra as outras sessões da conta.
 - Criação de contas pela pessoa autenticada; todos os usuários têm acesso completo, conforme a regra atual do projeto.
 
 ## Requisitos locais
@@ -58,7 +59,7 @@ Use a mesma grafia para `NOME-UNICO-DO-APP` em `fly.toml` e no comando `fly apps
 
 No primeiro início, o servidor cria as tabelas e cria a conta inicial com os segredos `ADMIN_*`. A aplicação fica em `https://NOME-UNICO-DO-APP.fly.dev`. Entre com o e-mail e a senha inicial e use **Adicionar usuário** para criar os acessos da equipe.
 
-> O aplicativo não manda convites por e-mail nem oferece recuperação de senha ainda. Entregue as senhas temporárias por canal privado. Todos os usuários cadastrados podem criar outras contas e têm permissões iguais.
+> O aplicativo não manda convites nem oferece recuperação de senha por e-mail. Entregue a senha inicial por canal privado; cada pessoa pode trocá-la depois do login. Todos os usuários cadastrados podem criar outras contas e têm permissões iguais.
 
 ### Dados e backup
 
@@ -66,7 +67,7 @@ O banco local existente permanece na máquina e não é enviado neste procedimen
 
 ## Rotas da API
 
-- `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `POST /api/auth/users`
+- `POST /api/auth/login`, `POST /api/auth/logout`, `GET /api/auth/me`, `POST /api/auth/users`, `PATCH /api/auth/password`
 - `GET /api/health` (status do servidor e banco; sem autenticação)
 - `GET/POST /api/contractors`, `PATCH /api/contractors/:id/status`
 - `GET/POST /api/employees`, `PATCH /api/employees/:id/status`
