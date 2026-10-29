@@ -1,6 +1,6 @@
 import { createHash, randomBytes, scrypt as scryptCallback, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
-import { pool } from './db.js';
+import { pool, withTransaction } from './db.js';
 
 const scrypt = promisify(scryptCallback);
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
@@ -98,6 +98,25 @@ export function registerAuthRoutes(app, asyncRoute, bad) {
   app.get('/api/auth/me', (req, res) => {
     res.json({ user: { id: req.user.id, email: req.user.email, fullName: req.user.full_name } });
   });
+
+  app.patch('/api/auth/password', asyncRoute(async (req, res) => {
+    const currentPassword = String(req.body.currentPassword || '');
+    const newPassword = String(req.body.newPassword || '');
+    if (newPassword.length < 12 || newPassword.length > 128) throw bad('A nova senha deve ter entre 12 e 128 caracteres.');
+    const { rows: [user] } = await pool.query('SELECT password_hash FROM app_users WHERE id=$1 AND active=true', [req.user.id]);
+    if (!user || !await verifyPassword(currentPassword, user.password_hash)) {
+      return res.status(400).json({ error: 'A senha atual está incorreta.' });
+    }
+    const passwordHash = await hashPassword(newPassword);
+    const token = randomBytes(32).toString('base64url');
+    await withTransaction(async (client) => {
+      await client.query('UPDATE app_users SET password_hash=$1 WHERE id=$2', [passwordHash, req.user.id]);
+      await client.query('DELETE FROM app_sessions WHERE user_id=$1', [req.user.id]);
+      await client.query('INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,$3)', [hashToken(token), req.user.id, new Date(Date.now() + SESSION_TTL_MS)]);
+    });
+    res.setHeader('Set-Cookie', `${COOKIE_NAME}=${encodeURIComponent(token)}; ${cookieOptions()}`);
+    res.json({ ok: true });
+  }));
 
   app.post('/api/auth/users', asyncRoute(async (req, res) => {
     const email = String(req.body.email || '').trim().toLowerCase();
