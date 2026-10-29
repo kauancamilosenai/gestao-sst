@@ -3,18 +3,13 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pool, withTransaction } from './db.js';
 import { addYears, isISODate } from './dates.js';
+import { registerAuthRoutes } from './auth.js';
 
 export const app = express();
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 app.use(express.json({ limit: '1mb' }));
 const frontendDir = resolve(dirname(fileURLToPath(import.meta.url)), '../../public');
 app.use(express.static(frontendDir));
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'http://localhost:5173');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, OPTIONS');
-  if (req.method === 'OPTIONS') return res.sendStatus(204);
-  next();
-});
 
 const asyncRoute = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 const bad = (message) => Object.assign(new Error(message), { status: 400 });
@@ -25,6 +20,8 @@ app.get('/api/health', asyncRoute(async (_req, res) => {
   await pool.query('SELECT 1');
   res.json({ status: 'ok', database: 'connected' });
 }));
+
+registerAuthRoutes(app, asyncRoute, bad);
 
 app.get('/api/contractors', asyncRoute(async (req, res) => {
   const result = await pool.query(`SELECT c.*, count(e.id)::int AS employee_count
@@ -198,3 +195,4 @@ app.use((err, _req, res, _next) => {
   if (status >= 500) console.error(err);
   res.status(status).json({ error: status >= 500 ? 'Erro interno do servidor.' : err.message });
 });
+
