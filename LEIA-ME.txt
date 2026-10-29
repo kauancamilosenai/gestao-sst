@@ -1,0 +1,19 @@
+MVP Gestão SST — pacote HTML, CSS e JavaScript
+
+COMO APRESENTAR
+1. Extraia este ZIP para uma pasta.
+2. Abra index.html no Microsoft Edge ou Google Chrome.
+3. O protótipo funciona localmente e não exige instalação ou servidor.
+4. Também está incluída a versão única mvp-gestao-sst-apresentacao.html, que abre diretamente.
+
+ARQUIVOS-FONTE
+- index.html: estrutura e navegação do protótipo.
+- styles.css: estilos principais.
+- identity.css: identidade visual, responsividade e animações.
+- app.js: dados de demonstração e interações.
+
+SOBRE A DEMONSTRAÇÃO
+- Use os dados de exemplo; eles são fictícios.
+- Os dados cadastrados ficam somente no armazenamento deste navegador.
+- Google Drive, envio de e-mail, login, banco de dados e servidor ainda não estão conectados.
+- Para restaurar os dados de exemplo, use “Restaurar exemplos” no topo da tela.
