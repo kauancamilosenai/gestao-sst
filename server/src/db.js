@@ -2,7 +2,6 @@ import pg from 'pg';
 import 'dotenv/config';
 
 const { Pool } = pg;
-if (!process.env.DATABASE_URL) throw new Error('Configure DATABASE_URL no arquivo .env');
 
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -13,6 +12,15 @@ export const pool = new Pool({
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 30000,
 });
+
+export function assertDatabaseConfigured() {
+  if (!process.env.DATABASE_URL) {
+    throw Object.assign(new Error('O Vercel ainda não tem DATABASE_URL configurada. Adicione a conexão do PostgreSQL nas variáveis de ambiente e publique novamente.'), {
+      status: 503,
+      expose: true,
+    });
+  }
+}
 
 export async function withTransaction(fn) {
   const client = await pool.connect();
