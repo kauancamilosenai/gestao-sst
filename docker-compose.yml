@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:16
+    container_name: gestao-sst-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gestao_sst
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - gestao_sst_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d gestao_sst"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  gestao_sst_data:

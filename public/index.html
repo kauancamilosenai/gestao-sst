@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f7f4" />
+    <meta name="description" content="Gestão documental de empreiteiras e colaboradores." />
+    <title>Gestão SST</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./identity.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="demo-banner"><span class="demo-dot"></span> Banco conectado <span>Dados carregados do PostgreSQL</span><button id="reload-data" data-action="reload-data" type="button">Atualizar dados</button></div>
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#home" aria-label="Gestão SST - início"><span class="brand-mark">S</span><span><strong>Gestão SST</strong><small>documentos e equipe</small></span></a>
+        <div class="nav-caption">ESPAÇO DE TRABALHO</div>
+        <nav class="main-nav" aria-label="Navegação principal">
+          <button class="nav-link active" data-page="home"><span class="nav-symbol">⌂</span><span>Visão geral</span></button>
+          <button class="nav-link" data-page="companies"><span class="nav-symbol">▤</span><span>Empreiteiras</span><b id="nav-company-count">0</b></button>
+          <button class="nav-link" data-page="employees"><span class="nav-symbol">♙</span><span>Colaboradores</span><b id="nav-employee-count">0</b></button>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="privacy-card"><span class="privacy-icon">◈</span><div><strong>Dados no PostgreSQL</strong><small>Login ainda não configurado</small></div></div>
+          <div class="signed-user"><span class="avatar avatar-small">EQ</span><span><strong>Equipe de assessoria</strong><small>ambiente local</small></span><span class="more-dot">•••</span></div>
+        </div>
+      </aside>
+      <button class="mobile-nav-scrim" id="mobile-nav-scrim" data-action="close-mobile-nav" aria-label="Fechar navegação"></button>
+
+      <main class="main-area">
+        <header class="topbar">
+          <div class="heading"><button class="mobile-menu-button" data-action="toggle-mobile-nav" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button><div class="heading-copy"><div class="breadcrumb">Painel <span>/</span> <span id="breadcrumb-current">Visão geral</span></div><h1 id="page-title">Bom dia, equipe</h1></div></div>
+          <div class="top-actions">
+            <div class="connection-state"><i></i><span>Drive não conectado</span></div>
+            <button class="button button-light button-drive" data-action="drive-info"><span>↗</span> Conectar Drive</button>
+            <button class="icon-button" title="Configurações de e-mail" data-action="open-settings">⚙</button>
+          </div>
+        </header>
+        <div id="main-content" class="content-area"></div>
+      </main>
+    </div>
+    <div id="overlay-root"></div>
+    <div id="toast-root" aria-live="polite"></div>
+  </body>
+</html>
