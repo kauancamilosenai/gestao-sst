@@ -50,7 +50,11 @@ export async function bootstrapAdmin() {
   const existing = await pool.query('SELECT id FROM app_users WHERE lower(email)=$1 LIMIT 1', [email]);
   if (existing.rowCount) return;
   const passwordHash = await hashPassword(password);
-  await pool.query('INSERT INTO app_users(email,full_name,password_hash) VALUES($1,$2,$3)', [email, name, passwordHash]);
+  try {
+    await pool.query('INSERT INTO app_users(email,full_name,password_hash) VALUES($1,$2,$3)', [email, name, passwordHash]);
+  } catch (error) {
+    if (error.code !== '23505') throw error;
+  }
   console.log(`Usuário inicial criado: ${email}`);
 }
 

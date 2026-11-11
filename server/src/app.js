@@ -1,9 +1,10 @@
 import express from 'express';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pool, withTransaction } from './db.js';
+import { assertDatabaseConfigured, pool, withTransaction } from './db.js';
 import { addYears, isISODate } from './dates.js';
-import { registerAuthRoutes } from './auth.js';
+import { bootstrapAdmin, registerAuthRoutes } from './auth.js';
+import { initializeSchema } from './init-db.js';
 
 export const app = express();
 if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
@@ -15,6 +16,21 @@ const asyncRoute = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next
 const bad = (message) => Object.assign(new Error(message), { status: 400 });
 const audit = (client, type, id, action, details = {}) => client.query(
   'INSERT INTO audit_log(entity_type, entity_id, action, details) VALUES($1,$2,$3,$4)', [type, id, action, details]);
+
+let vercelInitialization;
+if (process.env.VERCEL) {
+  app.use('/api', asyncRoute(async (_req, _res, next) => {
+    if (!vercelInitialization) {
+      vercelInitialization = (async () => {
+        assertDatabaseConfigured();
+        await initializeSchema();
+        await bootstrapAdmin();
+      })().catch((error) => { vercelInitialization = null; throw error; });
+    }
+    await vercelInitialization;
+    next();
+  }));
+}
 
 app.get('/api/health', asyncRoute(async (_req, res) => {
   await pool.query('SELECT 1');
@@ -193,6 +209,6 @@ app.get('/api/audit', asyncRoute(async (req, res) => {
 app.use((err, _req, res, _next) => {
   const status = err.status || (err.code === '23503' ? 400 : 500);
   if (status >= 500) console.error(err);
-  res.status(status).json({ error: status >= 500 ? 'Erro interno do servidor.' : err.message });
+  res.status(status).json({ error: err.expose ? err.message : status >= 500 ? 'Erro interno do servidor.' : err.message });
 });
 

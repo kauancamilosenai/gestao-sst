@@ -1,8 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
-import { pool } from './db.js';
+import { assertDatabaseConfigured, pool } from './db.js';
 
 export async function initializeSchema() {
+  assertDatabaseConfigured();
   const schemaUrl = new URL('../db/schema.sql', import.meta.url);
   const sql = await readFile(fileURLToPath(schemaUrl), 'utf8');
   await pool.query(sql);
