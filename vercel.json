@@ -4,6 +4,18 @@
   "functions": {
     "api/[...path].js": {
       "includeFiles": "server/db/schema.sql"
+    },
+    "api/auth/*.js": {
+      "includeFiles": "server/db/schema.sql"
+    },
+    "api/employees/[id].js": {
+      "includeFiles": "server/db/schema.sql"
+    },
+    "api/employees/[id]/*.js": {
+      "includeFiles": "server/db/schema.sql"
+    },
+    "api/documents/[id]/*.js": {
+      "includeFiles": "server/db/schema.sql"
     }
   }
 }
