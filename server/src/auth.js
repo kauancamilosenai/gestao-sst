@@ -48,10 +48,13 @@ export async function bootstrapAdmin() {
   }
   if (!email || !password) return;
   const existing = await pool.query('SELECT id FROM app_users WHERE lower(email)=$1 LIMIT 1', [email]);
-  if (existing.rowCount) return;
+  if (existing.rowCount) {
+    await pool.query("UPDATE app_users SET role='admin' WHERE id=$1", [existing.rows[0].id]);
+    return;
+  }
   const passwordHash = await hashPassword(password);
   try {
-    await pool.query('INSERT INTO app_users(email,full_name,password_hash) VALUES($1,$2,$3)', [email, name, passwordHash]);
+    await pool.query("INSERT INTO app_users(email,full_name,password_hash,role) VALUES($1,$2,$3,'admin')", [email, name, passwordHash]);
   } catch (error) {
     if (error.code !== '23505') throw error;
   }
@@ -78,7 +81,7 @@ export function registerAuthRoutes(app, asyncRoute, bad) {
     await pool.query('DELETE FROM app_sessions WHERE expires_at < now()');
     await pool.query('INSERT INTO app_sessions(token_hash,user_id,expires_at) VALUES($1,$2,$3)', [hashToken(token), user.id, new Date(Date.now() + SESSION_TTL_MS)]);
     res.setHeader('Set-Cookie', `${COOKIE_NAME}=${encodeURIComponent(token)}; ${cookieOptions()}`);
-    res.json({ user: { id: user.id, email: user.email, fullName: user.full_name } });
+    res.json({ user: { id: user.id, email: user.email, fullName: user.full_name, role: user.role } });
   }));
 
   app.post('/api/auth/logout', checkSameOrigin, asyncRoute(async (req, res) => {
@@ -92,7 +95,7 @@ export function registerAuthRoutes(app, asyncRoute, bad) {
     if (req.path === '/health' || req.path === '/auth/login' || req.path === '/auth/logout') return next();
     const token = readCookie(req);
     if (!token) return res.status(401).json({ error: 'Faça login para continuar.' });
-    const { rows: [user] } = await pool.query(`SELECT u.id,u.email,u.full_name FROM app_sessions s
+    const { rows: [user] } = await pool.query(`SELECT u.id,u.email,u.full_name,u.role FROM app_sessions s
       JOIN app_users u ON u.id=s.user_id WHERE s.token_hash=$1 AND s.expires_at>now() AND u.active=true`, [hashToken(token)]);
     if (!user) return res.status(401).json({ error: 'Sessão expirada. Entre novamente.' });
     req.user = user;
@@ -100,7 +103,7 @@ export function registerAuthRoutes(app, asyncRoute, bad) {
   }));
 
   app.get('/api/auth/me', (req, res) => {
-    res.json({ user: { id: req.user.id, email: req.user.email, fullName: req.user.full_name } });
+    res.json({ user: { id: req.user.id, email: req.user.email, fullName: req.user.full_name, role: req.user.role } });
   });
 
   app.patch('/api/auth/password', asyncRoute(async (req, res) => {
@@ -123,6 +126,7 @@ export function registerAuthRoutes(app, asyncRoute, bad) {
   }));
 
   app.post('/api/auth/users', asyncRoute(async (req, res) => {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Somente administradores podem criar contas.' });
     const email = String(req.body.email || '').trim().toLowerCase();
     const fullName = String(req.body.fullName || '').trim();
     const password = String(req.body.password || '');
@@ -131,7 +135,7 @@ export function registerAuthRoutes(app, asyncRoute, bad) {
     if (password.length < 12 || password.length > 128) throw bad('A senha deve ter entre 12 e 128 caracteres.');
     const passwordHash = await hashPassword(password);
     try {
-      const { rows: [user] } = await pool.query('INSERT INTO app_users(email,full_name,password_hash) VALUES($1,$2,$3) RETURNING id,email,full_name', [email, fullName, passwordHash]);
+      const { rows: [user] } = await pool.query("INSERT INTO app_users(email,full_name,password_hash,role) VALUES($1,$2,$3,'user') RETURNING id,email,full_name,role", [email, fullName, passwordHash]);
       res.status(201).json({ id: user.id, email: user.email, fullName: user.full_name });
     } catch (error) {
       if (error.code === '23505') throw bad('Já existe um usuário com esse e-mail.');

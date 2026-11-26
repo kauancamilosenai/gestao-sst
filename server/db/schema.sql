@@ -5,9 +5,11 @@ CREATE TABLE IF NOT EXISTS app_users (
   email text NOT NULL,
   full_name text NOT NULL,
   password_hash text NOT NULL,
+  role text NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
   active boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now()
 );
+ALTER TABLE app_users ADD COLUMN IF NOT EXISTS role text NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user'));
 CREATE UNIQUE INDEX IF NOT EXISTS app_users_email_lower_idx ON app_users (lower(email));
 
 CREATE TABLE IF NOT EXISTS app_sessions (

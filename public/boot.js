@@ -21,6 +21,8 @@ function enterApp(user) {
   authScreen.hidden = true;
   appShell.hidden = false;
   demoBanner.hidden = false;
+  const addUserButton = document.querySelector('[data-auth-action="add-user"]');
+  if (addUserButton) addUserButton.hidden = user.role !== 'admin';
   const display = document.querySelector('.signed-user > span:nth-child(2)');
   if (display) {
     display.querySelector('strong').textContent = user.fullName;
