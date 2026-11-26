@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": { "start": "node src/server.js", "dev": "node --watch src/server.js", "db:init": "node src/init-db.js" },
-  "engines": { "node": ">=20" },
+  "engines": { "node": "24.x" },
   "dependencies": { "dotenv": "^16.4.7", "express": "^4.21.2", "pg": "^8.13.1" }
 }
